@@ -1,0 +1,4 @@
+[submodule "blocky"]
+	path = vendor/blocky
+	url = https://github.com/0xERR0R/blocky.git
+	branch = v0.26.2
