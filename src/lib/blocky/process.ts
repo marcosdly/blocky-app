@@ -54,14 +54,7 @@ export function spawn({
     config,
   });
 
-  const args = [
-    "--host",
-    host,
-    "--port",
-    port.toString(),
-    "--strict-port",
-    strictPort ? "true" : "false",
-  ];
+  const args = ["--apiHost", host, "--apiPort", port.toString()];
 
   if (config) {
     args.push("--config", config);
