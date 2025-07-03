@@ -10,29 +10,31 @@ export interface VersionStruct {
   patch: number;
 }
 
-export async function versionAsString(): Promise<string> {
-  let stdout: string;
-  try {
-    stdout = (await execAsync(`${BLOCKY_EXECUTABLE_PATH} version`)).stdout;
-    for (const line of stdout.split("\n")) {
-      if (line.startsWith("Version")) {
-        return line.slice("Version: ".length).trim();
+export default Object.freeze({
+  async string(): Promise<string> {
+    let stdout: string;
+    try {
+      stdout = (await execAsync(`${BLOCKY_EXECUTABLE_PATH} version`)).stdout;
+      for (const line of stdout.split("\n")) {
+        if (line.startsWith("Version")) {
+          return line.slice("Version: ".length).trim();
+        }
       }
+      throw new Error("Version not found in output");
+    } catch (error) {
+      throw new Error(`Failed to get version: ${(error as Error).message}`);
     }
-    throw new Error("Version not found in output");
-  } catch (error) {
-    throw new Error(`Failed to get version: ${(error as Error).message}`);
-  }
-}
+  },
 
-export async function versionAsStruct(): Promise<VersionStruct> {
-  const versionString = await versionAsString();
-  const [major, minor, patch] = versionString
-    .replace(/^v+/, "") // Remove leading 'v' if present
-    .split(".")
-    .map(Number);
-  if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
-    throw new Error("Invalid version format");
-  }
-  return { major, minor, patch } as VersionStruct;
-}
+  async struct(): Promise<VersionStruct> {
+    const versionString = await this.string();
+    const [major, minor, patch] = versionString
+      .replace(/^v+/, "") // Remove leading 'v' if present
+      .split(".")
+      .map(Number);
+    if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
+      throw new Error("Invalid version format");
+    }
+    return { major, minor, patch } as VersionStruct;
+  },
+});
