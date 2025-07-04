@@ -6,14 +6,31 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "repl": "ts-node-esm --swc"
   },
   "dependencies": {
-    "preact": "^10.26.9"
+    "@types/bun": "^1.2.17",
+    "preact": "^10.26.9",
+    "tar": "7.4.3",
+    "yauzl": "3.2.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.1",
+    "@swc/core": "1.12.7",
+    "@types/node": "^24.0.4",
+    "@types/web": "0.0.243",
+    "@types/yauzl": "2.10.3",
+    "@typescript-eslint/parser": "5.62.0",
+    "eslint": "8.57.1",
+    "eslint-config-preact": "1.5.0",
+    "prettier": "3.6.1",
+    "prettier-eslint": "16.4.2",
+    "ts-node": "10.9.2",
     "typescript": "~5.8.3",
     "vite": "^7.0.0"
+  },
+  "eslintConfig": {
+    "extends": "preact"
   }
 }
