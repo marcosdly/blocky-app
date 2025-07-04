@@ -1,10 +1,10 @@
 import { spawn as spawnChild, type ChildProcess } from "node:child_process";
 import { BLOCKY_EXECUTABLE_PATH, blockyExecutableExists } from "./download.ts";
+import { apiHTTP } from "../../constants.ts";
 
 interface BlockyCLIFlags {
   host: string;
   port: number;
-  strictPort: boolean;
   config: string;
 }
 
@@ -22,25 +22,14 @@ const Errors = Object.freeze({
   noSuchProcess: "ESRCH",
 });
 
-export function spawn({
-  host,
-  port,
-  strictPort,
-  config,
-}: BlockyCLIFlags): void {
+export function spawn_process(): void {
   if (!blockyExecutableExists()) {
     throw Error(
       "Blocky executable does not exist, make sure to download it first",
     );
   }
 
-  host = host || "127.0.0.1";
-  port = port || 4000;
-  strictPort = strictPort || false;
-  config = config || "";
-
-  if (port < 1024) throw RangeError("Port is less than 1024");
-  if (port > 65535) throw RangeError("Port is more than 65535");
+  const config = "../../../debug/assets/blocky/config.yml";
 
   if (isRunning()) {
     throw Error("Blocky is already running");
@@ -48,17 +37,20 @@ export function spawn({
 
   // New object for control safety
   BLOCKY_PROCESS_FLAGS = Object.freeze({
-    host,
-    port,
-    strictPort,
+    host: apiHTTP.host,
+    port: apiHTTP.port,
     config,
   });
 
-  const args = ["--apiHost", host, "--apiPort", port.toString()];
-
-  if (config) {
-    args.push("--config", config);
-  }
+  const args = [
+    "--apiHost",
+    apiHTTP.host,
+    "--apiPort",
+    apiHTTP.port.toString(),
+    "--config",
+    config,
+    "serve",
+  ];
 
   BLOCKY_CHILD_PROCESS = spawnChild(BLOCKY_EXECUTABLE_PATH, args, {
     stdio: "inherit",
@@ -80,6 +72,7 @@ export function spawn({
   console.log(`Blocky started with PID ${BLOCKY_CHILD_PROCESS.pid}`);
 }
 
+/** Send SIGTERM (soft kill) */
 export function stop() {
   if (!isRunning()) {
     console.warn("Blocky is not running, nothing to stop");
@@ -104,6 +97,7 @@ export function stop() {
   console.log("Blocky process stopped successfully");
 }
 
+/** Send SIGKILL (hard kill) */
 export function kill() {
   if (!isRunning()) {
     console.warn("Blocky is not running, nothing to kill");
@@ -144,6 +138,15 @@ export function isRunning(): boolean {
 
 export function getPID(): number | null {
   return BLOCKY_CHILD_PROCESS?.pid || null;
+}
+
+/**
+ * Debugging function to fallback to before deciding on a better way to handle whatever
+ * use case this is needed for.
+ * @returns The child process if it exists, otherwise null.
+ */
+export function getChildProcess(): ChildProcess | null {
+  return BLOCKY_CHILD_PROCESS;
 }
 
 export function getFlags(): Readonly<BlockyCLIFlags> | null {
