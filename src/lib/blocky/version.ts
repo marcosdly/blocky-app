@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import { promisify } from "util";
-import { BLOCKY_EXECUTABLE_PATH } from "./process.ts";
+import { BLOCKY_EXECUTABLE_PATH } from "./download.ts";
 
 const execAsync = promisify(exec);
 
